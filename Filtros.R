@@ -21,15 +21,23 @@ EmpresasContabilidade_CNPJ_6920601 <- EmpresasContabilidade_CNPJ_6920601[complet
 
 
 #Tem que ter os números de telefone e email de preferência
+
 # Removendo NAs de emails -------------------------------------------------
 
 EmpresasContabilidade_CNPJ_6920601 <- EmpresasContabilidade_CNPJ_6920601 %>% filter(!is.na(email))
-
+x<- EmpresasContabilidade_CNPJ_6920601
 
 #Fazer os filtros de acordo com porte, Existencia de telefone, inicio da atividade e depois localização
-
-x<-EmpresasContabilidade_CNPJ_6920601 %>%
-  dplyr::filter(porte == c('3', '5'))
+# export const portes = [
+#   "Não informado",1
+#   "Micro empresa",2
+#   "Pequeno porte",3
+#   "Mei",4
+#   "Demais",5
+# ];
+# CASO PRECISE RETIRAR PORTE
+# x<-x %>%
+#   dplyr::filter(porte == c('3', '5', '4', '5', '1'))
 
 
 # Só números de telefone que fazem sentido
@@ -38,23 +46,41 @@ x<-x %>%
   dplyr::filter(telefone1 != c('-'))
 
 
-# export const portes = [
-#   "Não informado",1
-#   "Micro empresa",2
-#   "Pequeno porte",3
-#   "Mei",4
-#   "Demais",5
-# ];
-# 
+
+
+#Substituindo NULL por NA
+x$razao_social <- ifelse(x$razao_social=='NULL', NA, x$razao_social)
+
+
+# Se os valores das colunas razao social e nome fantasia forem NA remover a coluna
+x <- x[!(is.na(x$razao_social) & is.na(x$nome_fantasia)), ]
 
 # Filtro por cidade -------------------------------------------------------
 
 
+# x<-x %>%
+#   dplyr::filter(cidade == c('6001'))
+# 
+ x<-x %>%
+   dplyr::filter(matriz_filial == 1)
+
+
+
+# Rankear  ----------------------------------------------------------------
+
+x$rank <- ifelse(x$cidade=='6001'& x$porte %in% c('3','5'), 1,
+                 ifelse(x$cidade != '6001' & !x$porte %in% c('3', '5'), 3, 2))
+
 x<-x %>%
-  dplyr::filter(cidade == c('6001'))
+  dplyr::filter(lat != 0)
 
 
-x %>% write.csv("EmpresasContabilidade3_5_RioCOd6001.csv")
+# Remover participante de edital, cidade, matriz filial, porte
+
+x<- x %>% select(-c(participante_edital,matriz_filial,cidade, porte))
+
+
+x %>% write.csv2("EmpresasContabilidade3_5_RioCOd6001.csv", sep = ";")
 
 
 
