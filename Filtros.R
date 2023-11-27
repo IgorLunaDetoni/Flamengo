@@ -78,7 +78,7 @@ x<-x %>%
 # Remover participante de edital, cidade, matriz filial, porte
 
 x<- x %>% select(-c(participante_edital,matriz_filial,cidade, porte))
-
+x<- x %>% select(-c(cod_nat_juridica))
 
 x %>% write.csv2("EmpresasContabilidade3_5_RioCOd6001.csv", sep = ";")
 
