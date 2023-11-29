@@ -46,8 +46,6 @@ x<-x %>%
   dplyr::filter(telefone1 != c('-'))
 
 
-
-
 #Substituindo NULL por NA
 x$razao_social <- ifelse(x$razao_social=='NULL', NA, x$razao_social)
 x$email <- ifelse(x$email=='NULL', NA, x$email)
@@ -63,11 +61,6 @@ x <- x[complete.cases(x$email),]
 # 
  x<-x %>%
    dplyr::filter(matriz_filial == 1)
-
-
-
-
-
 
 
 # Rankear  ----------------------------------------------------------------
