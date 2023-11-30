@@ -98,3 +98,75 @@ library(openxlsx)
 
 # Save dataframe to an Excel file
 write.xlsx(unicos, file = "EmpresasContabilidade3_5_RioCOd6001.xlsx", rowNames = FALSE)
+
+
+
+
+# Base Nova ---------------------------------------------------------------
+library(readxl)
+ContabilidadeBrasil <- read_excel("DataRawCont/Contabilidade.xlsx")
+
+x<-ContabilidadeBrasil %>%
+  dplyr::filter(Latitudo != 0)
+
+x<-x %>%
+  dplyr::filter(`Matriz Filial` == 1)
+
+unique(x$Estado)
+count_by_value <- x %>%
+  group_by(Estado) %>%
+  summarise(Count = n())
+View(count_by_value)
+
+x<-x %>%
+  dplyr::filter(Estado != 'RJ')
+
+# Removendo emails duplicados ---------------------------------------------
+
+x <- x %>% dplyr::distinct(Email,.keep_all = TRUE)
+
+
+
+# Removendo linhas que não tem Razao social e nome fantasia ---------------
+
+x <- x[!(is.na(x$`Razao Social`) & is.na(x$`Nome Fantasia`)), ]
+x <- x[complete.cases(x$Email),]
+
+# Selecionando Estados de DF ES e MG --------------------------------------
+count_by_value <- x %>%
+  group_by(Estado) %>%
+  summarise(Count = n())
+View(count_by_value)
+
+Estados = c('ES',"DF", "MG")
+
+# Filter rows containing strings from the list
+filtered_rows <- x[x$Estado %in% Estados, ]
+print(filtered_rows)
+
+filtered_rows<-filtered_rows %>%
+  dplyr::filter(Email != '()')
+
+# Analise de porte --------------------------------------------------------
+
+count_by_value <- filtered_rows %>%
+  group_by(Porte) %>%
+  summarise(Count = n())
+View(count_by_value)
+
+
+# Rankeando ---------------------------------------------------------------
+
+
+filtered_rows$rank <- ifelse(filtered_rows$Porte %in% c('Demais'), 1,
+                 ifelse(filtered_rows$Porte %in% c('Micro empresa'), 2, 3))
+
+
+# Removendo colunas desnecessárias ----------------------------------------
+
+filtered_rows<- filtered_rows %>% select(-c(`Matriz Filial`, Porte))
+
+
+
+# Save df Excel file
+write.xlsx(filtered_rows, file = "Output/EmpresasContabilidade_ES_DF_MG.xlsx", rowNames = FALSE)
