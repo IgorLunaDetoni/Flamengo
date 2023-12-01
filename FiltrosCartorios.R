@@ -50,3 +50,13 @@ x <- x  %>%
   dplyr::filter(Estado == 'DF')
 write.xlsx(x, file = "Output/Cartorios_DF.xlsx", rowNames = FALSE)
 
+
+x <- x %>%  dplyr::filter(Estado != c('DF','RJ'))
+
+
+write.xlsx(x, file = "Output/Cartorios_Sem_DF_RJ.xlsx", rowNames = FALSE)
+
+
+
+write.xlsx(x, file = 'Output/Cartorios_TodosPosFiltros.xlsx', rowNames = FALSE)
+
