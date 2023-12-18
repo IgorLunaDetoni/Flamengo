@@ -12,6 +12,7 @@ str(EmpresasContabilidade_CNPJ_6920601)
 
 
 
+
 # Limpeza básica ----------------------------------------------------------
 
 EmpresasContabilidade_CNPJ_6920601$porte[EmpresasContabilidade_CNPJ_6920601$porte == '01'] <- '1'
@@ -106,17 +107,20 @@ write.xlsx(unicos, file = "EmpresasContabilidade3_5_RioCOd6001.xlsx", rowNames =
 library(readxl)
 ContabilidadeBrasil <- read_excel("DataRawCont/Contabilidade.xlsx")
 
+
+
+
 x<-ContabilidadeBrasil %>%
   dplyr::filter(Latitudo != 0)
 
 x<-x %>%
   dplyr::filter(`Matriz Filial` == 1)
 
-unique(x$Estado)
-count_by_value <- x %>%
+
+x %>%
   group_by(Estado) %>%
-  summarise(Count = n())
-View(count_by_value)
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
 
 x<-x %>%
   dplyr::filter(Estado != 'RJ')
@@ -133,12 +137,14 @@ x <- x[!(is.na(x$`Razao Social`) & is.na(x$`Nome Fantasia`)), ]
 x <- x[complete.cases(x$Email),]
 
 # Selecionando Estados de DF ES e MG --------------------------------------
-count_by_value <- x %>%
-  group_by(Estado) %>%
-  summarise(Count = n())
-View(count_by_value)
 
-Estados = c('ES',"DF", "MG")
+x %>%
+  group_by(Estado) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+
+
+Estados = c('SP')
 
 # Filter rows containing strings from the list
 filtered_rows <- x[x$Estado %in% Estados, ]
@@ -166,7 +172,11 @@ filtered_rows$rank <- ifelse(filtered_rows$Porte %in% c('Demais'), 1,
 
 filtered_rows<- filtered_rows %>% select(-c(`Matriz Filial`, Porte))
 
-
+library(xlsx)
 
 # Save df Excel file
-write.xlsx(filtered_rows, file = "Output/EmpresasContabilidade_ES_DF_MG.xlsx", rowNames = FALSE)
+# write.xlsx(filtered_rows, file = "Output/EmpresasContabilidade_SP.xlsx", rowNames = FALSE)
+
+write.csv(filtered_rows, "Output/EmpresasContabilidade_SP.csv", row.names = FALSE)
+
+
